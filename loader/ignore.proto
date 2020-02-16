@@ -1,0 +1,21 @@
+
+syntax="proto3";
+package galois.gdatabus;
+
+enum event_type {
+    update = 0;
+    del = 1;
+}
+message ignore {
+    uint64 id = 1;
+    event_type type = 2;
+    message schema_t {
+        key_t key = 1;
+    }
+    message key_t {
+    }
+    oneof event {
+        schema_t update = 3;
+        key_t del = 4;
+    }
+}
