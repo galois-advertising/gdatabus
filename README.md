@@ -1,12 +1,17 @@
-gDatabus
+![logo](galois-images.001.png)
 
 # What's gDatabus
 
-gDatabus is a large-scale real-time data transmission library. It is especially suitable for the transmission of advertising data in online advertising system. Due to the high response speed of `Ad Retrieval System`, data is usually synchronized from disk database(such as MySQL) to memory database(gTable) of `retrieval end`. This is just what gdatabus does.
+gDatabus is a large-scale real-time data transmission library. It is especially suitable for the transmission of advertising data in online advertising system. 
+
+In a `Online Advertisement Retrieval System`, data is usually synchronized from disk database(such as MySQL) to memory database(such as gTable) for high concurrent/speed query. This is just what gdatabus does.
+
 
 # How does it works
 
-gDatabus synchronizes data through formatted files. There are two kind of data flow: `snapshot` and `stream`. `Snapshot` is the total data exported from the database, which is generated once or twice a day. `Stream` is a real-time data flow for transmit incremental data, which generally generates a file every five to ten minutes.
+gDatabus synchronizes data through formatted files. 
+
+There are two kind of data flow: `snapshot` and `stream`. `Snapshot` is the total data exported from the database, which is generated once or twice a day. `Stream` is a real-time data flow for transmiting incremental data, which generally generates a file every five to ten minutes.
 
 In engineering applications, we need to adapt the CDC module of database, such as [debezium](https://github.com/debezium/debezium) to generate `stream` flow.
 
