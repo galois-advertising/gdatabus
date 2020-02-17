@@ -1,6 +1,8 @@
 ![logo](galois-images.001.png)
 
 # What's gDatabus
+[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat)](http://www.galois-advertising.com)
+[![Documentation Status](https://img.shields.io/badge/中文文档-最新-brightgreen.svg)](http://www.galois-advertising.com)
 
 gDatabus is a large-scale real-time data transmission library. It is especially suitable for the transmission of advertising data in online advertising system. 
 
