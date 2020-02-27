@@ -34,6 +34,15 @@ bool loader<traits>::create()
     if (auto name = get_schema_name(event_schema_id::PLAN); name) {
         this->schema_names[event_schema_id::PLAN] = name.value();
     }
+    if (auto name = get_schema_name(event_schema_id::UNIT); name) {
+        this->schema_names[event_schema_id::UNIT] = name.value();
+    }
+    if (auto name = get_schema_name(event_schema_id::XDV); name) {
+        this->schema_names[event_schema_id::XDV] = name.value();
+    }
+    if (auto name = get_schema_name(event_schema_id::IDEA); name) {
+        this->schema_names[event_schema_id::IDEA] = name.value();
+    }
     return true;
 }
 
@@ -99,10 +108,19 @@ bool loader<traits>::load_base() {
                 std::tie(file, datetime) = snap->second;
                 switch(static_cast<event_schema_id>(i)) {
                 case event_schema_id::USER:
-                    thread_pool.enqueue(load_snap<user_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<user_event_callbacks>, file, datetime);
                     break;
                 case event_schema_id::PLAN:
-                    thread_pool.enqueue(load_snap<plan_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<plan_event_callbacks>, file, datetime);
+                    break;
+                case event_schema_id::UNIT:
+                    thread_pool.enqueue(load_snap<unit_event_callbacks>, file, datetime);
+                    break;
+                case event_schema_id::XDV:
+                    thread_pool.enqueue(load_snap<xdv_event_callbacks>, file, datetime);
+                    break;
+                case event_schema_id::IDEA:
+                    thread_pool.enqueue(load_snap<idea_event_callbacks>, file, datetime);
                     break;
                 default:FATAL("Invalid schema.", "");break;
                 }
@@ -122,6 +140,9 @@ std::optional<std::string> loader<traits>::get_schema_name(event_schema_id es) {
     switch (es) {
         case event_schema_id::USER:return std::optional<std::string>("user");break;
         case event_schema_id::PLAN:return std::optional<std::string>("plan");break;
+        case event_schema_id::UNIT:return std::optional<std::string>("unit");break;
+        case event_schema_id::XDV:return std::optional<std::string>("xdv");break;
+        case event_schema_id::IDEA:return std::optional<std::string>("idea");break;
         default:return std::nullopt;
     }
     return std::nullopt;

@@ -35,7 +35,7 @@ struct my_traits: public default_traits<parse_env, update_env> {
     typedef update_env update_env;
 
     typedef my_user_event user_event;
-    typedef my_user_callbacks user_callbacks;
+    typedef my_user_callbacks user_event_callbacks;
 };
 
 class my_loader : public galois::gdatabus::loader<my_traits> {
@@ -56,9 +56,9 @@ int main()
     my_user_event::update_t update; 
     my_user_event::delete_t del; 
     uint32_t data_type = 0;
-    my_loader::user_callbacks::insert(penv, header, update, data_type);
-    my_loader::user_callbacks::del(penv, header, del, data_type);
-    my_loader::user_callbacks::update(uenv, header, update, data_type);
+    my_loader::user_event_callbacks::insert(penv, header, update, data_type);
+    my_loader::user_event_callbacks::del(penv, header, del, data_type);
+    my_loader::user_event_callbacks::update(uenv, header, update, data_type);
     ld.create();
     ld.load_base();
     return 0;   
