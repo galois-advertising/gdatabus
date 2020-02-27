@@ -5,7 +5,6 @@
 #include <optional>
 #include "loader_def.h"
 #include "configuration.h"
-#include "dbschema/freyja/databus_event.pb.h"
 #include "ignore.pb.h"
 #include "pack_header.h"
 
