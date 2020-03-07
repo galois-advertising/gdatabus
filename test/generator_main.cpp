@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         writer.write_record(header, buf, user_event.ByteSizeLong(), outfile.get());
         galois::freyja::user_event user_event_2;
         user_event_2.ParseFromArray(buf, user_event.ByteSizeLong());
-        std::cout<<user_event_2.id()
+        std::cout<<"size:"<<size<<"|"<<user_event_2.id()
             <<":"<<user_event_2.update().key().user_id()
             <<":"<<user_event_2.update().region()
             <<"     "<<user_event.ByteSizeLong()

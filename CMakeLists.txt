@@ -16,7 +16,9 @@ if(NOT Boost_FOUND)
 endif()
 message(STATUS "Found Boost IncPath ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost LibPath ${Boost_LIBRARY_DIRS}")
-message(STATUS "Found Boost LIBRARIES ${Boost_LIBRARIES}")
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+message(STATUS "CMAKE_CURRENT_BINARY_DIR:${CMAKE_CURRENT_BINARY_DIR}")
+message(STATUS "CMAKE_BINARY_DIR:${CMAKE_BINARY_DIR}")
 
 add_definitions(-DBOOST_SPIRIT_THREADSAFE)
 add_definitions(-DBOOST_ALL_DYN_LINK)
@@ -30,26 +32,26 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/common/util/thread-pool")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/gformat/include")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/loader")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}/common")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}/loader")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}/common/dbschema")
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}")
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/common")
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/loader")
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/common/dbschema")
 FIND_PACKAGE(Protobuf REQUIRED)
 INCLUDE_DIRECTORIES(${Protobuf_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 EXECUTE_PROCESS(COMMAND protoc 
     -I=${CMAKE_SOURCE_DIR}
-    --cpp_out=${PROJECT_BINARY_DIR}
+    --cpp_out=${CMAKE_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}/common/dbschema/freyja/databus_event.proto)
 
 EXECUTE_PROCESS(COMMAND protoc 
     -I=${CMAKE_SOURCE_DIR}
-    --cpp_out=${PROJECT_BINARY_DIR}
+    --cpp_out=${CMAKE_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/loader/ignore.proto)
 
 SET(LOADER_SRCS
-"${CMAKE_CURRENT_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
+"${CMAKE_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
 "${CMAKE_CURRENT_BINARY_DIR}/loader/ignore.pb.cc"
 "${PROJECT_SOURCE_DIR}/test/loader_main.cpp" 
 "${CMAKE_SOURCE_DIR}/common/util/src/log.cpp"
@@ -60,7 +62,7 @@ ADD_EXECUTABLE(gdatabus_test_loader ${LOADER_SRCS})
 target_link_libraries(gdatabus_test_loader ${Protobuf_LIBRARIES} boost_log-mt)
 
 SET(GENERATOR_SRCS
-"${CMAKE_CURRENT_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
+"${CMAKE_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
 "${PROJECT_SOURCE_DIR}/test/generator_main.cpp" 
 "${CMAKE_SOURCE_DIR}/common/util/src/log.cpp"
 "${CMAKE_SOURCE_DIR}/gformat/src/checksum.cpp"

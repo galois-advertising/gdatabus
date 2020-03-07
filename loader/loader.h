@@ -14,6 +14,7 @@ template <typename event_t>
 struct event_traits_t {
     typedef event_t event;
     typedef typename event_t::schema_t update_t;
+    typedef typename event_t::derivative_t derivative_t;
     typedef typename event_t::key_t delete_t;
 };
 
@@ -23,17 +24,17 @@ struct schema_callbacks {
     typedef update_env_t update_env;
     typedef eventt_t event;
     static int insert(parse_env& env, const galois::gformat::pack_header_t& header,
-        const typename event::update_t& data, uint32_t data_type) {
+        const typename event::update_t& data) {
         return 0;
     };
 
     static int del(parse_env& env, const galois::gformat::pack_header_t& header,
-        const typename event::delete_t& data, uint32_t data_type) {
+        const typename event::delete_t& data) {
         return 0;
     };
 
     static int update(update_env& env, const galois::gformat::pack_header_t& header,
-        const typename event::update_t& data, uint32_t data_type) {
+        const typename event::update_t& data) {
         return 0;
     };
 };

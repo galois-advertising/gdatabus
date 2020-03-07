@@ -11,6 +11,9 @@ message ignore {
     event_type type = 2;
     message schema_t {
         key_t key = 1;
+        derivative_t derivative = 2;
+    }
+    message derivative_t {
     }
     message key_t {
     }

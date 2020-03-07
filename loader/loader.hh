@@ -80,7 +80,7 @@ bool load_snap(std::string file, uint64_t datetime) {
             typename callbacks::event::event event_item;
             if (event_item.ParseFromArray(buffer.get(), header.pack_len)) {
                 typename callbacks::parse_env env;
-                callbacks::insert(env, header, event_item.update(), 1);
+                callbacks::insert(env, header, event_item.update());
             } else {
                 FATAL("Parse fail", "");
             }
@@ -153,37 +153,45 @@ snapshot_files_t loader<traits>::get_lastest_snapshot()
 {
     std::set<std::string> done;
     snapshot_files_t snapshort_files;
-    for (auto& pos: fs::directory_iterator(databus_root_path() + "/" + snapshot_path())) {
-        if (pos.is_directory()) {
-            continue;
-        }
-        std::string fname = std::string(pos.path().filename());
-        const std::regex r(snapshot_prefix() + R"((\d+)_(\w+)\.(\w+)\.(\d+))");
-        if (std::smatch sm; std::regex_match(fname, sm, r)) {
-            std::string version = sm[1], schema = sm[2], label = sm[3], datetime = sm[4];
-            if (label == data_file_suffix) {
-                try {
-                    snapshort_files[schema] = 
-                        std::make_pair(
-                            std::string(pos.path()), 
-                            std::stoul(datetime.c_str())
-                        );
-                } catch (std::exception& e) {
-                    FATAL("Fail to get snapshort file %s", std::string(pos.path()).c_str());
+    auto snapshot = databus_root_path() + "/" + snapshot_path();
+    if (!std::filesystem::exists(snapshot)) {
+        FATAL("Snapshot path [%s] does not exists.", snapshot.c_str());
+        return snapshort_files;
+    }
+    try {
+        for (auto& pos: fs::directory_iterator(snapshot)) {
+            if (pos.is_directory()) {
+                continue;
+            }
+            std::string fname = std::string(pos.path().filename());
+            const std::regex r(snapshot_prefix() + R"((\d+)_(\w+)\.(\w+)\.(\d+))");
+            if (std::smatch sm; std::regex_match(fname, sm, r)) {
+                std::string version = sm[1], schema = sm[2], label = sm[3], datetime = sm[4];
+                if (label == data_file_suffix) {
+                    try {
+                        snapshort_files[schema] = 
+                            std::make_pair(
+                                std::string(pos.path()), 
+                                std::stoul(datetime.c_str())
+                            );
+                    } catch (std::exception& e) {
+                        FATAL("Fail to get snapshort file %s", std::string(pos.path()).c_str());
+                    }
+                } else if (label == "done") {
+                    done.insert(schema);
                 }
-            } else if (label == "done") {
-                done.insert(schema);
             }
         }
-
-    }
-    for (auto it = snapshort_files.begin(); it != snapshort_files.end();) {
-        if (done.find(it->first) == done.end()) {
-            WARNING("File [%s] is not done.", it->second.first.c_str());
-            it = snapshort_files.erase(it);
-        } else {
-            ++it;
+        for (auto it = snapshort_files.begin(); it != snapshort_files.end();) {
+            if (done.find(it->first) == done.end()) {
+                WARNING("File [%s] is not done.", it->second.first.c_str());
+                it = snapshort_files.erase(it);
+            } else {
+                ++it;
+            }
         }
+    } catch (std::exception & exp) {
+        FATAL("get_lastest_snapshot fail for [%s]", exp.what());
     }
     return snapshort_files;
 }

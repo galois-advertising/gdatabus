@@ -13,19 +13,19 @@ typedef event_traits_t<galois::freyja::user_event> my_user_event;
 
 struct my_user_callbacks : public schema_callbacks<parse_env, update_env, my_user_event> {
     static int insert(parse_env& env, galois::gformat::pack_header_t& header, 
-        const event::update_t & data, uint32_t data_type) {
+        const event::update_t & data) {
         INFO("user_callback::insert:[%u][%u] [%s]", 
             data.key().user_id(), data.user_stat(), data.region().c_str());
         return 0;
     };
 
     static int del(parse_env& env, galois::gformat::pack_header_t& header, 
-        const event::delete_t& data, uint32_t data_type) {
+        const event::delete_t& data) {
         return 0;
     };
 
     static int update(update_env& env, galois::gformat::pack_header_t& header, 
-        const event::update_t& data, uint32_t data_type) {
+        const event::update_t& data) {
         return 0;
     };
 };
@@ -55,10 +55,10 @@ int main()
     galois::gformat::pack_header_t header; 
     my_user_event::update_t update; 
     my_user_event::delete_t del; 
-    uint32_t data_type = 0;
-    my_loader::user_event_callbacks::insert(penv, header, update, data_type);
-    my_loader::user_event_callbacks::del(penv, header, del, data_type);
-    my_loader::user_event_callbacks::update(uenv, header, update, data_type);
+    my_user_event::derivative_t derivative;
+    my_loader::user_event_callbacks::insert(penv, header, update);
+    my_loader::user_event_callbacks::del(penv, header, del);
+    my_loader::user_event_callbacks::update(uenv, header, update);
     ld.create();
     ld.load_base();
     return 0;   
