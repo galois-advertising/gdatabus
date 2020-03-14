@@ -11,12 +11,13 @@ struct user_data_t {
     uint32_t user_id;
     uint32_t user_stat;
     std::string region;
+    std::string user_name;
 };
 
 std::vector<user_data_t> users{
-    {1,11,"beijing"},
-    {2,22,"shanghai"},
-    {3,13,"guangzhou"},
+    {1,11,"beijing","Number 1"},
+    {2,22,"shanghai","Number 2"},
+    {3,13,"guangzhou","Number 3"},
 };
 
 
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
         user_event.mutable_update()->mutable_key()->set_user_id(user.user_id);
         user_event.mutable_update()->set_user_stat(user.user_stat);
         user_event.mutable_update()->set_region(user.region);
+        user_event.mutable_update()->set_user_name(user.user_name);
         auto size = user_event.SerializeToArray(buf, MAX_SIZE);
         writer.write_record(header, buf, user_event.ByteSizeLong(), outfile.get());
         galois::freyja::user_event user_event_2;
@@ -51,6 +53,7 @@ int main(int argc, char* argv[])
         std::cout<<"size:"<<size<<"|"<<user_event_2.id()
             <<":"<<user_event_2.update().key().user_id()
             <<":"<<user_event_2.update().region()
+            <<":"<<user_event_2.update().user_name()
             <<"     "<<user_event.ByteSizeLong()
             <<std::endl;
     }

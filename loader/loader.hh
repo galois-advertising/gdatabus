@@ -26,8 +26,9 @@ template<typename traits>
 loader<traits>::~loader(){}
 
 template<typename traits>
-bool loader<traits>::create() 
+bool loader<traits>::init(env_t env) 
 {
+    handler = env;
     if (auto name = get_schema_name(event_schema_id::USER); name) {
         this->schema_names[event_schema_id::USER] = name.value();
     }
@@ -46,8 +47,9 @@ bool loader<traits>::create()
     return true;
 }
 
+template<typename traits>
 template<typename callbacks>
-bool load_snap(std::string file, uint64_t datetime) {
+bool loader<traits>::load_snap(std::string file, uint64_t datetime, env_t env) {
     if (typeid(typename callbacks::event) == 
         typeid(event_traits_t<galois::gdatabus::ignore>::event)) {
         FATAL("pb type is Ignored", "");
@@ -79,7 +81,6 @@ bool load_snap(std::string file, uint64_t datetime) {
         } else if (rc == galois::gformat::error_t::SUCCESS) {
             typename callbacks::event::event event_item;
             if (event_item.ParseFromArray(buffer.get(), header.pack_len)) {
-                typename callbacks::parse_env env;
                 callbacks::insert(env, header, event_item.update());
             } else {
                 FATAL("Parse fail", "");
@@ -108,19 +109,19 @@ bool loader<traits>::load_base() {
                 std::tie(file, datetime) = snap->second;
                 switch(static_cast<event_schema_id>(i)) {
                 case event_schema_id::USER:
-                    thread_pool.enqueue(load_snap<user_event_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<user_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::PLAN:
-                    thread_pool.enqueue(load_snap<plan_event_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<plan_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::UNIT:
-                    thread_pool.enqueue(load_snap<unit_event_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<unit_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::XDV:
-                    thread_pool.enqueue(load_snap<xdv_event_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<xdv_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::IDEA:
-                    thread_pool.enqueue(load_snap<idea_event_callbacks>, file, datetime);
+                    thread_pool.enqueue(load_snap<idea_event_callbacks>, file, datetime, handler);
                     break;
                 default:FATAL("Invalid schema.", "");break;
                 }

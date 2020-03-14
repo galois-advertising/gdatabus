@@ -18,61 +18,57 @@ struct event_traits_t {
     typedef typename event_t::key_t delete_t;
 };
 
-template<typename parse_env_t, typename update_env_t, typename eventt_t>
+template<typename gtable_env, typename eventt_t>
 struct schema_callbacks {
-    typedef parse_env_t parse_env; 
-    typedef update_env_t update_env;
+    typedef gtable_env env; 
     typedef eventt_t event;
-    static int insert(parse_env& env, const galois::gformat::pack_header_t& header,
+    static int insert(env& env, const galois::gformat::pack_header_t& header,
         const typename event::update_t& data) {
         return 0;
     };
 
-    static int del(parse_env& env, const galois::gformat::pack_header_t& header,
+    static int del(env& env, const galois::gformat::pack_header_t& header,
         const typename event::delete_t& data) {
         return 0;
     };
 
-    static int update(update_env& env, const galois::gformat::pack_header_t& header,
+    static int update(env& env, const galois::gformat::pack_header_t& header,
         const typename event::update_t& data) {
         return 0;
     };
 };
 
-template<typename parse_env_t, typename update_env_t>
+template<typename gtable_env>
 class default_traits {
 public:
-    typedef parse_env_t parse_env;
-    typedef update_env_t update_env;
+    typedef gtable_env env;
 
     // user
     typedef event_traits_t<galois::gdatabus::ignore> user_event;
-    typedef schema_callbacks<parse_env, update_env, user_event> user_event_callbacks;
+    typedef schema_callbacks<env, user_event> user_event_callbacks;
 
     // plan
     typedef event_traits_t<galois::gdatabus::ignore> plan_event;
-    typedef schema_callbacks<parse_env, update_env, plan_event> plan_event_callbacks;
+    typedef schema_callbacks<env, plan_event> plan_event_callbacks;
 
     // unit 
     typedef event_traits_t<galois::gdatabus::ignore> unit_event;
-    typedef schema_callbacks<parse_env, update_env, unit_event> unit_event_callbacks;
+    typedef schema_callbacks<env, unit_event> unit_event_callbacks;
 
     // xdv 
     typedef event_traits_t<galois::gdatabus::ignore> xdv_event;
-    typedef schema_callbacks<parse_env, update_env, xdv_event> xdv_event_callbacks;
+    typedef schema_callbacks<env, xdv_event> xdv_event_callbacks;
 
     // idea 
     typedef event_traits_t<galois::gdatabus::ignore> idea_event;
-    typedef schema_callbacks<parse_env, update_env, idea_event> idea_event_callbacks;
+    typedef schema_callbacks<env, idea_event> idea_event_callbacks;
 };
 
 typedef std::map<std::string, std::pair<file_path_t, uint64_t> > snapshot_files_t;
 template<typename traits>
 class loader : public configuration {
 public:
-    typedef typename traits::parse_env parse_env;
-    typedef typename traits::update_env update_env;
-
+    typedef typename traits::env env_t;
     typedef typename traits::user_event user_event;
     typedef typename traits::user_event_callbacks user_event_callbacks;
     typedef typename traits::plan_event plan_event;
@@ -87,13 +83,16 @@ public:
 public:
     loader();
     virtual ~loader();
-    bool create();
+    bool init(env_t);
     bool load_base();
     bool load_increment();
+    template<typename callbacks>
+    static bool load_snap(std::string file, uint64_t datetime, env_t env);
 private:
     snapshot_files_t get_lastest_snapshot();
     std::optional<std::string> get_schema_name(event_schema_id);
 private:
+    env_t handler;
     std::map<event_schema_id, std::string> schema_names;
 };
 }
