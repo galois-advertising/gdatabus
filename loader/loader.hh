@@ -76,7 +76,6 @@ bool loader<traits>::load_snap(std::string file, uint64_t datetime, env_t env) {
     while (true) {
         auto rc = protobuf_reader.read_record(header, buffer.get(), BUF_SIZE, infile.get());
         if (rc == galois::gformat::error_t::REACH_EOF) {
-            WARNING("Reach EOF.", "");
             break;
         } else if (rc == galois::gformat::error_t::SUCCESS) {
             typename callbacks::event::event event_item;
