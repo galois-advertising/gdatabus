@@ -10,7 +10,7 @@
 #include <regex>
 #include <stdio.h>
 #include <future>
-#include "thread-pool.h"
+#include "thread_pool.h"
 #include "log.h"
 #include "pb_fixed_file_reader.h"
 
@@ -97,7 +97,7 @@ bool loader<traits>::load_base() {
     snapshot_files_t snapshot_files;
     snapshot_files = get_lastest_snapshot();
     std::set<std::future<bool>> tasks;
-    ThreadPool thread_pool(5);
+    thread_pool threads(5);
     for (auto i = static_cast<uint32_t>(event_schema_id::_begin);
     i != static_cast<uint32_t>(event_schema_id::_end); ++i) {
         if (auto label = schema_names.find(static_cast<event_schema_id>(i));
@@ -108,19 +108,19 @@ bool loader<traits>::load_base() {
                 std::tie(file, datetime) = snap->second;
                 switch(static_cast<event_schema_id>(i)) {
                 case event_schema_id::USER:
-                    thread_pool.enqueue(load_snap<user_event_callbacks>, file, datetime, handler);
+                    threads.enqueue(load_snap<user_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::PLAN:
-                    thread_pool.enqueue(load_snap<plan_event_callbacks>, file, datetime, handler);
+                    threads.enqueue(load_snap<plan_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::UNIT:
-                    thread_pool.enqueue(load_snap<unit_event_callbacks>, file, datetime, handler);
+                    threads.enqueue(load_snap<unit_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::XDV:
-                    thread_pool.enqueue(load_snap<xdv_event_callbacks>, file, datetime, handler);
+                    threads.enqueue(load_snap<xdv_event_callbacks>, file, datetime, handler);
                     break;
                 case event_schema_id::IDEA:
-                    thread_pool.enqueue(load_snap<idea_event_callbacks>, file, datetime, handler);
+                    threads.enqueue(load_snap<idea_event_callbacks>, file, datetime, handler);
                     break;
                 default:FATAL("Invalid schema.", "");break;
                 }
