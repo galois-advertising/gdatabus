@@ -28,7 +28,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/common/util/include")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/common/include")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/common/util/thread-pool")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/gformat/include")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/loader")
@@ -50,23 +49,29 @@ EXECUTE_PROCESS(COMMAND protoc
     --cpp_out=${CMAKE_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/loader/ignore.proto)
 
+
+IF (NOT TARGET common)
+    ADD_SUBDIRECTORY(common)
+ENDIF()
+
+IF (NOT TARGET gformat)
+    ADD_SUBDIRECTORY(gformat)
+ENDIF()
+
+
 SET(LOADER_SRCS
 "${CMAKE_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
 "${CMAKE_CURRENT_BINARY_DIR}/loader/ignore.pb.cc"
 "${PROJECT_SOURCE_DIR}/test/loader_main.cpp" 
-"${CMAKE_SOURCE_DIR}/common/util/src/log.cpp"
-"${CMAKE_SOURCE_DIR}/gformat/src/checksum.cpp"
 )
 
 ADD_EXECUTABLE(gdatabus_test_loader ${LOADER_SRCS})
-target_link_libraries(gdatabus_test_loader ${Protobuf_LIBRARIES} boost_log-mt)
+target_link_libraries(gdatabus_test_loader ${Protobuf_LIBRARIES} common gformat boost_log-mt)
 
 SET(GENERATOR_SRCS
 "${CMAKE_BINARY_DIR}/common/dbschema/freyja/databus_event.pb.cc"
 "${PROJECT_SOURCE_DIR}/test/generator_main.cpp" 
-"${CMAKE_SOURCE_DIR}/common/util/src/log.cpp"
-"${CMAKE_SOURCE_DIR}/gformat/src/checksum.cpp"
 )
 
 ADD_EXECUTABLE(gdatabus_test_generator ${GENERATOR_SRCS})
-target_link_libraries(gdatabus_test_generator ${Protobuf_LIBRARIES} boost_log-mt)
+target_link_libraries(gdatabus_test_generator ${Protobuf_LIBRARIES} common gformat boost_log-mt)
